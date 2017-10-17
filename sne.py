@@ -6,10 +6,11 @@ from snlda import DOC_NUM, TOPIC_NUM
     W: D * D adjacency matrix, 1 if in same category, -1 if in different category, 0 if unknown
     lambda: scalar, parameter of Gaussian prior
     u: D * TOPIC_NUM, penalty term of admm, 
+    rho: scalar, penalty coeffcient of admm
 
     return: updated theta
 '''
 
-def update_theta(theta, W, lamba, u):
+def update_theta(theta, W, lamba, u, rho):
     pass
 
