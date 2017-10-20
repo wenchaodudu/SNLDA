@@ -27,3 +27,14 @@ def admm(X, W, rho, iter_num):
         u += (theta_1 - theta_2)
         return (theta_1 + theta_2) / 2
 
+if __name__ == "__main__":
+    synth = pickle.load(open('synthetic_data'))
+    data = synth['data']
+    clusters = synth['clusters']
+    C = dict()
+    categories = set(clusters)
+    for c in categories:
+        if c is not None:
+            C[c] = clusters[clusters == c]
+    admm(data, C, 2, 30)
+
