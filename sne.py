@@ -12,7 +12,7 @@ import random
     return: updated theta
 '''
 
-def update_theta(starting, theta0, W, lamba, u, rho):
+def update_theta(theta0, starting, W, lamba, u, rho):
     D = np.shape(W)[0]
     theta = starting
     for _ in range(1000):
