@@ -1,5 +1,6 @@
 import numpy as np
 import itertools
+import pickle
 from sne import update_theta
 from lda import update_variables
 
@@ -36,5 +37,7 @@ if __name__ == "__main__":
     for c in categories:
         if c is not None:
             C[c] = clusters[clusters == c]
+    TOPIC_NUM = 20
+    DOC_NUM, VOCAB_SIZE = data.shape
     admm(data, C, 2, 30)
 
