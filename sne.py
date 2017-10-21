@@ -1,7 +1,7 @@
 import numpy as np
 # from snlda import DOC_NUM, TOPIC_NUM
 import random
-
+# update_theta(theta_1, theta_2, W, 1 / (2 * prior_std**2), u, rho, it)
 '''
     theta: D * TOPIC_NUM, document topic vectors
     W: D * D adjacency matrix, 1 if in same category, -1 if in different category, 0 if unknown
@@ -12,9 +12,9 @@ import random
     return: updated theta
 '''
 
-def update_theta(theta0, W, lamba, u, rho):
+def update_theta(starting, theta0, W, lamba, u, rho):
     D = np.shape(W)[0]
-    theta = theta0
+    theta = starting
     for _ in range(1000):
         theta_old = theta.copy()
         ite = list(range(D))
@@ -92,6 +92,6 @@ if __name__=='__main__':
     u = np.random.rand(100,20)
     rho = 0.01
     # G = gradient(0,theta,theta0, W, lamba, u, rho)
-    N = update_theta(theta0, W, lamba, u, rho)
-    print(N)
+    N = update_theta(theta0, theta0, W, lamba, u, rho)
+    # print(N)
 
