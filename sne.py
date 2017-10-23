@@ -1,6 +1,7 @@
 import numpy as np
 # from snlda import DOC_NUM, TOPIC_NUM
 import random
+
 # update_theta(theta_1, theta_2, W, 1 / (2 * prior_std**2), u, rho, it)
 '''
     theta: D * TOPIC_NUM, document topic vectors
@@ -12,86 +13,69 @@ import random
     return: updated theta
 '''
 
-def update_theta(theta0, starting, W, lamba, u, rho):
-    D = np.shape(W)[0]
+
+def update_theta(theta0, starting, W, C, lamba, u, rho, step=0.001):
+    # W: a dict representing the category
+    # C: a list representing the category
+    D = len(C)
     theta = starting
     for _ in range(1000):
         theta_old = theta.copy()
         ite = list(range(D))
         random.shuffle(ite)
         for i in ite:
-            dir = gradient(i,theta,theta0,W,lamba,u,rho)
-            update_sub(i, theta, dir)
-            # theta[i,:] += dir * 0.001
-        print(objective(theta,theta0,W,lamba,u,rho),objective(theta_old,theta0,W,lamba,u,rho))
-        if np.linalg.norm(theta_old-theta) < 0.01 or \
-            np.abs(objective(theta,theta0,W,lamba,u,rho)-objective(theta_old,theta0,W,lamba,u,rho)) < 1:
-            # print(np.linalg.norm(theta_old-theta) < 0.01)
+            dir = - gradient(i, C[i], theta, theta0, W, lamba, u, rho)
+            theta[i, :] += dir * step
+        print(objective(theta, theta0, W,C, lamba, u, rho))
+        if np.linalg.norm(theta_old - theta) < 0.01 or \
+                        np.abs(objective(theta, theta0, W, C, lamba, u, rho) - objective(theta_old, theta0, W, C, lamba,
+                                                                                         u, rho)) < 1:
+            # print(np.linalg.norm(theta_old - theta) < 0.01)
             break
-    return(theta,objective(theta,theta0,W,lamba,u,rho))
-
-def update_sub(i, theta, direction, step=-0.001):
-    # update the i-th dimension
-    theta[i,:] += direction*step
-    return
-
-def objective(theta,theta0,W,lamda,u,rho):
-    def d(i,j):
-        return(distance(theta[i,:], theta[j,:]))
-    D = np.shape(W)[0]
-    y0 = 0
-    for i in range(D):
-        S = 0
-        for j in list(range(i))+list(range(i+1,D)):
-            S += np.exp(-d(i, j)**2)
-        # print('S=:', S)
-        for j in list(range(i))+list(range(i+1,D)):
-            # y0 += -pow(d(i,j),2)*(W[i,j]==1)-np.log(sum(np.exp(-pow(d(i,j)*(W[i,j]==-1),2))))
-            y0 += -d(i, j)**2 * (W[i, j] == 1) - np.log(S)
-    y1 = lamda * np.linalg.norm(theta)
-    y2 = rho/2 * np.linalg.norm(theta0-theta+u)
-    return(y0 + y1 + y2)
-
-def gradient(i,theta,theta0,W,lamda,u,rho):
-    # gradient with respect to theta on i-th element
-    D, L = np.shape(theta)
-    g0 = np.zeros(L)
-    S = 0
-    for j in list(range(i)) + list(range(i + 1, D)):
-        S += np.exp(-distance(theta[i,:],theta[j,:])**2)
-    for j in list(range(i))+list(range(i+1,D)):
-        g0 += (2-np.exp(-distance(theta[i,:],theta[j,:])**2)/S) * g_delta(theta[i,:],theta[j,:])
-    g1 = lamda * 2 * theta[i,:]
-    g2 = rho * (theta[i,:]-theta0[i,:]-u[i,:])
-    return(g0 + g1 + g2)
-
-def distance(x1,x2):
-    return(np.linalg.norm(x1-x2))
-
-def g_delta(x1,x2):
-    # partial d(x1,x2)/partial(x1)
-    return(2*(x1-x2))
+    return (theta, objective(theta, theta0, W,C, lamba, u, rho))
 
 
-if __name__=='__main__':
+def objective(theta, theta0, W, C, lamda, u, rho):
+    # W: a dict representing the category
+    # C: a list representation
+    D = len(C)
+    y0 = np.sum(np.sum(np.linalg.norm(theta[i, :] - theta[j, :]) ** 2 for i in l for j in l) for l in list(W.values()))
+    def S(i):
+        category = set(W.keys()) - set(C[i])
+        s = np.sum(np.sum(np.exp(-np.linalg.norm(theta[i, :] - theta[j, :]) ** 2) for j in W[l]) for l in category)
+        return (np.log(s))
+
+    y1 = np.sum(S(i) for i in range(D))
+    y2 = lamda * np.linalg.norm(theta) + rho / 2 * np.linalg.norm(theta0 - theta + u)
+    return (y0 + y1 + y2)
+
+
+def gradient(i, ci, theta, theta0, W, lamda, u, rho):
+    # W: a dict representing the category
+    # ci: the category of i-th point
+    category = set(W.keys()) - set(ci)
+    M = {}
+    for d in category:
+        M[d] = np.mean(W[d])
+    g0 = 4 * np.sum((theta[i, :] - theta[j, :]) for j in W[ci])
+    # print(list(M.values()))
+    # print(len(list(M.values())))
+    S = np.sum(len(l) * np.exp(-np.linalg.norm(theta[i, :], M[l])) for l in M.keys())
+    g1 = np.sum(len(l) * np.exp(-np.linalg.norm(theta[i, :], M[l])) * 2 * (theta[i, :] - M[l]) for l in M.keys()) / S
+    g2 = lamda * 2 * theta[i, :] + rho * (theta[i, :] - theta0[i, :] - u[i, :])
+    return (g0 + g1 + g2)
+
+
+if __name__ == '__main__':
     # update_theta(theta0, W, lamba, u, rho)
-    theta0 = np.random.rand(100,20)
+    theta0 = np.random.rand(100, 20)
     theta = np.random.rand(100, 20)
-    W = np.zeros((100,100))
-    for i in range(50):
-        for j in range(50):
-            W[i,j] = 1
-        for j in range(50,100):
-            W[i,j] = -1
-    for i in range(50,100):
-        for j in range(50):
-            W[i,j] = -1
-        for j in range(50,100):
-            W[i,j] = 1
+    W = {'1':list(range(50)),'2':list(range(50,100))}
+    C = list('1'*50+'2'*50)
     lamba = 100
-    u = np.random.rand(100,20)
+    u = np.random.rand(100, 20)
     rho = 0.01
-    # G = gradient(0,theta,theta0, W, lamba, u, rho)
-    N = update_theta(theta0, theta0, W, lamba, u, rho)
+    G = gradient(0,'1',theta,theta0, W, lamba, u, rho)
+    N = update_theta(theta0, theta0, W,C, lamba, u, rho)
+    # s1 = np.sum(np.sum(np.linalg.norm(theta[i,:] - theta[j,:]) ** 2 for i in l for j in l) for l in list(W.values()))
     # print(N)
-
