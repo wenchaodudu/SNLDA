@@ -15,7 +15,7 @@ import random
     return: updated theta
 '''
 
-def update_theta(theta0, starting, C, lamba, u, rho, step=0.001):
+def update_theta(theta0, starting, C,W,  lamba, u, rho, step=0.001):
     # W: a dict representing the category
     # C: a list representing the category
     # processing W and C
@@ -83,4 +83,4 @@ if __name__ == '__main__':
     u = np.random.rand(100, 20)
     rho = 0.01
     G = gradient(0,1,theta, theta0, W, lamba, u, rho)
-    N = update_theta(theta0, theta0, C, lamba, u, rho)
+    N = update_theta(theta0, theta0, C,W,  lamba, u, rho)
