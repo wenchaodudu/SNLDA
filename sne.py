@@ -18,7 +18,7 @@ np.seterr(invalid='raise', divide='raise')
     return: updated theta
 '''
 
-step_size = 1e-3
+step_size = .5 * 1e-3
 
 def update_theta(theta0, starting, W, C, lamba, u, rho, it):
     # W: a dict representing the category
@@ -26,14 +26,14 @@ def update_theta(theta0, starting, W, C, lamba, u, rho, it):
     # processing W and C
 
     theta = starting
-    for _ in range(10):
+    for _ in range(5):
         theta_old = theta.copy()
         ite = np.where(C!=-1)[0]
         random.shuffle(ite)
         for i in ite:
             dir = - gradient(i, C[i], theta, theta0, W, lamba, u, rho)
             theta[i, :] += dir * step_size
-            print(objective(theta, theta0, W,C, lamba, u, rho))
+        print(objective(theta, theta0, W,C, lamba, u, rho))
         if np.linalg.norm(theta_old - theta) < 0.01 or \
                         np.abs(objective(theta, theta0, W, C, lamba, u, rho) - objective(theta_old, theta0, W, C, lamba,
                                                                                          u, rho)) < 1:
