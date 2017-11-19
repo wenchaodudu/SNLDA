@@ -45,6 +45,7 @@ def update_theta(theta0, starting, W, C, lamba, u, rho, it):
 def objective(theta, theta0, W, C, lamda, u, rho):
     # W: a dict representing the category
     # C: a list representation
+    '''
     D = len(C)
     y0 = np.sum(np.sum(np.linalg.norm(theta[i, :] - theta[j, :]) ** 2 for i in l for j in l) for l in W.values())
     def S(i):
@@ -54,9 +55,21 @@ def objective(theta, theta0, W, C, lamda, u, rho):
         return (np.log(s))
 
     y1 = np.sum(S(i) for i in range(D))
-    y2 = lamda * np.linalg.norm(theta) + rho / 2 * np.linalg.norm(theta0 - theta + u)
+    y2 = lamda * np.linalg.norm(theta)**2 + rho / 2 * np.linalg.norm(theta0 - theta + u)**2
     return (y0 + y1 + y2)
-
+    '''
+    denom = np.zeros(len(C))
+    labeled = C != -1
+    total = 0
+    for x in range(len(C)):
+        if labeled[x]:
+            denom[x] = np.sum(np.exp(-np.linalg.norm(theta[x] - theta, axis=1)**2))
+    for cat_list in W.values():
+        for x in cat_list:
+            total += np.sum(np.linalg.norm(theta[x] - theta[cat_list], axis=1)**2)
+            total -= np.log(denom[x]) * (len(cat_list) - 1)
+    return total + np.linalg.norm(theta)**2 + rho / 2 * np.linalg.norm(theta0 - theta + u)**2
+    
 
 def gradient(i, ci, theta, theta0, W, lamda, u, rho):
     # W: a dict representing the category
