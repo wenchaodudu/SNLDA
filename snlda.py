@@ -4,9 +4,8 @@ import pickle
 from sne import update_theta
 from lda import update_variables
 import matplotlib.pyplot as plt
-from sklearn.manifold import TSNE
-from sklearn.manifold import MDS
-from sklearn.decomposition import LatentDirichletAllocation as LDA
+from sklearn.manifold import TSNE, MDS 
+from sklearn.decomposition import LatentDirichletAllocation as LDA, PCA
 import pdb
 
 TOPIC_NUM = 0
@@ -33,11 +32,13 @@ def admm(X, W, C, rho, iter_num):
         u += (theta_1 - theta_2)
         print np.linalg.norm(theta_1 - theta_2)
 
+        '''
         if it % 5 == 4:
             solution = (theta_1 + theta_2) / 2
             low_dim = TSNE().fit_transform(solution)
             plt.scatter(low_dim[:, 0], low_dim[:, 1], c=colors)
             plt.show()
+        '''
 
     return (theta_1 + theta_2) / 2
 
@@ -46,18 +47,20 @@ if __name__ == "__main__":
     data = synth['data']
     clusters = synth['clusters']
     C = dict()
-    labels =  np.asarray([int(clusters[x]) if np.random.uniform() < 0.1 else -1 for x in range(data.shape[0])])
+    CC = dict()
+    labels =  np.asarray([int(clusters[x]) if np.random.uniform() < 0.2 else -1 for x in range(data.shape[0])])
     categories = set(clusters)
     for c in categories:
         if c is not None:
             C[c] = np.where(clusters==c)[0]
+            CC[c] = np.where(labels==c)[0]
     TOPIC_NUM = 20
     DOC_NUM, VOCAB_SIZE = data.shape
     color = {0: 'g', 1: 'b', 2: 'r', 3: 'y'}
     colors = [color[x] for x in clusters]
-    #solution = admm(data, C, labels, 10, 5)
-    solution = LDA(n_components=20, learning_method='batch', max_iter=30).fit_transform(data)
-    low_dim = MDS().fit_transform(data.toarray())
+    solution = admm(data, CC, labels, 10, 5)
+    #solution = LDA(n_components=20, learning_method='batch', max_iter=50, n_jobs=2).fit_transform(data)
+    low_dim = PCA(n_components=2).fit_transform(solution)
     plt.scatter(low_dim[:, 0], low_dim[:, 1], c=colors)
     plt.show()
     
