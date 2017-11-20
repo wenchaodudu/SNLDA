@@ -60,6 +60,7 @@ if __name__ == "__main__":
     low_dim = MDS().fit_transform(data.toarray())
     plt.scatter(low_dim[:, 0], low_dim[:, 1], c=colors)
     plt.show()
-    
+
+
 
 

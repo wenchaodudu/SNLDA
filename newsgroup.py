@@ -13,3 +13,9 @@ vectors = vectorizer.fit_transform(newsgroups_train.data)
 # vectors: TF-IDF vectors, 2034 * 34118
 # newsgroups_train.target: label for each sample
 # newsgroups_train.target_names: label name
+
+## LDA fitting
+from sklearn.decomposition import LatentDirichletAllocation as LDA
+color = {0: 'g', 1: 'b', 2: 'r', 3: 'y', 4: 'black'}
+colors = [color[x] for x in clusters]
+solution = LDA(n_components=20, learning_method='batch', max_iter=30).fit_transform(vectors)
