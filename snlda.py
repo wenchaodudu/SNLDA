@@ -63,6 +63,7 @@ if __name__ == "__main__":
     low_dim = PCA(n_components=2).fit_transform(solution)
     plt.scatter(low_dim[:, 0], low_dim[:, 1], c=colors)
     plt.show()
-    
+
+
 
 
