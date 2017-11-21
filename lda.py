@@ -18,7 +18,8 @@ def update_variables(X, theta_1, theta_2, q_z, beta, rho, u, it):
         for x in range(DOC_NUM):
             # update theta
             #Ez = sum((digamma(q_z[x][w]) - digamma(np.sum(q_z[x][w]))) * X[x,w] for w in q_z[x])
-            Ez = np.sum(exp_proportion(q_z[x][w]) * X[x, w] for w in q_z[x])
+            #Ez = np.sum(exp_proportion(q_z[x][w]) * X[x, w] for w in q_z[x])
+            Ez = np.sum(q_z[x][w] * X[x, w] for w in q_z[x])
             pi = exp_proportion(theta_1[x])
             theta_1[x] = (Ez - np.sum(Ez) * pi) / rho + theta_2[x] - u[x]
 

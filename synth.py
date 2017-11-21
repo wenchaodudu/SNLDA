@@ -14,7 +14,7 @@ beta = np.random.dirichlet(np.full(vocab_size, 2), topic_num)
 clusters = np.zeros(doc_num)
 
 for x in range(cluster_num):
-    centers[x][x*topic_num/cluster_num:(x+1)*topic_num/cluster_num] = 1
+    centers[x][x*topic_num/cluster_num:(x+1)*topic_num/cluster_num] = 2
     print centers[x]
 
 for x in range(doc_num):
