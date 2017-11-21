@@ -39,11 +39,14 @@ def update_theta(theta0, starting, W, C, lamba, u, rho, it):
             dir = - gradient(i, C[i], theta, theta0, W, C, lamba, u, rho)
             theta[i, :] += np.divide(dir, adagrad[i])
             adagrad[i] = np.sqrt(adagrad[i]**2 + dir**2)
+        '''
         if np.linalg.norm(theta_old - theta) < 0.01 or \
                         np.abs(objective(theta, theta0, W, C, lamba, u, rho) - objective(theta_old, theta0, W, C, lamba,
                                                                                          u, rho)) < 1:
             # print(np.linalg.norm(theta_old - theta) < 0.01)
             break
+        '''
+        objective(theta, theta0, W, C, lamba, u, rho)
     return (theta, objective(theta, theta0, W,C, lamba, u, rho))
 
 
@@ -72,13 +75,10 @@ def objective(theta, theta0, W, C, lamda, u, rho):
     for cat_list in W.values():
         for x in cat_list:
             total += np.sum(np.linalg.norm(theta[x] - theta[cat_list], axis=1)**2 * sigma)
-            try:
-                total += np.log(denom[x]) * (len(cat_list) - 1)
-            except:
-                pdb.set_trace()
+            total += np.log(denom[x]) * (len(cat_list) - 1)
+    total += np.linalg.norm(theta)**2
     print total
-    total += np.linalg.norm(theta)**2 + rho / 2 * np.linalg.norm(theta0 - theta + u)**2
-    print total
+    total += rho / 2 * np.linalg.norm(theta0 - theta + u)**2
     return total
     
 
