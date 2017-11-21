@@ -1,5 +1,5 @@
 ## import data
-import scipy
+import scipy.io
 
 test = scipy.io.loadmat('ng207528x8165itst.mat')
 test_data = test['Dtst'].tolist()[0][0][1]
@@ -65,3 +65,19 @@ for topic_num in TOPIC_NUM:
         accuracy = sum(clf.predict(X) == label) / 2000.
         S += accuracy
     print([label_num, topic_num, round(S / 20., 4)])
+
+## use words directly
+LABEL_NUM = [5,10,15,20]
+ACCURACY_WORD = []
+for label_num in LABEL_NUM:
+    S = 0
+    for i in range(20):
+        labeled_data = random_sample(100, 20, label_num)
+        clf = svm.SVC(kernel='linear')
+        clf.fit(train_select[labeled_data,], label[labeled_data])
+        S += sum(clf.predict(train_select) == label) / 2000.
+    S = S / 20.
+    ACCURACY_WORD.append(round(S * 100, 2))
+print(ACCURACY_WORD)
+# 26.17, 42.33, 50.29, 57.59
+# better than all the methods @_@

@@ -13,8 +13,11 @@ DOC_NUM = 0
 VOCAB_SIZE = 0
 prior_std = np.sqrt(2) / 2
 
-def admm(X, W, C, rho, iter_num):
+def admm(X, W, k, C, rho, iter_num):
     # initialize variables
+    TOPIC_NUM = k
+    DOC_NUM, VOCAB_SIZE = X.shape
+    print "Initializing."
     theta_1 = np.random.normal(scale=prior_std, size=(DOC_NUM, TOPIC_NUM))
     theta_2 = np.copy(theta_1)
     q_z = [dict() for x in range(DOC_NUM)]
@@ -54,11 +57,9 @@ if __name__ == "__main__":
         if c is not None:
             C[c] = np.where(clusters==c)[0]
             CC[c] = np.where(labels==c)[0]
-    TOPIC_NUM = 20
-    DOC_NUM, VOCAB_SIZE = data.shape
     color = {0: 'g', 1: 'b', 2: 'r', 3: 'y'}
     colors = [color[x] for x in clusters]
-    solution = admm(data, CC, labels, 10, 5)
+    solution = admm(data, CC, 20, labels, 10, 5)
     #solution = LDA(n_components=20, learning_method='batch', max_iter=50, n_jobs=2).fit_transform(data)
     low_dim = PCA(n_components=2).fit_transform(solution)
     plt.scatter(low_dim[:, 0], low_dim[:, 1], c=colors)

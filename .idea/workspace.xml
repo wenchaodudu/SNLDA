@@ -2,8 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="31f2594a-027e-4639-b20a-aced91fbf83e" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/newsgroup.py" afterPath="$PROJECT_DIR$/newsgroup.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/snlda.py" afterPath="$PROJECT_DIR$/snlda.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/20 news/accuracy.pdf" afterPath="$PROJECT_DIR$/20 news/accuracy.pdf" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/20 news/plot_accuracy.py" afterPath="$PROJECT_DIR$/20 news/plot_accuracy.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -29,8 +30,8 @@
       <file leaf-file-name="snlda.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/snlda.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1260">
-              <caret line="63" column="0" lean-forward="false" selection-start-line="63" selection-start-column="0" selection-end-line="63" selection-end-column="0" />
+            <state relative-caret-position="218">
+              <caret line="64" column="14" lean-forward="true" selection-start-line="63" selection-start-column="4" selection-end-line="64" selection-end-column="14" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -38,31 +39,34 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="news_data.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/news_data.py">
+      <file leaf-file-name="news_data.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/20 news/news_data.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1340">
-              <caret line="67" column="0" lean-forward="true" selection-start-line="67" selection-start-column="0" selection-end-line="67" selection-end-column="0" />
+            <state relative-caret-position="620">
+              <caret line="82" column="33" lean-forward="true" selection-start-line="82" selection-start-column="33" selection-end-line="82" selection-end-column="33" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="newsgroup.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/newsgroup.py">
+      <file leaf-file-name="plot_accuracy.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/20 news/plot_accuracy.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="325">
-              <caret line="19" column="37" lean-forward="true" selection-start-line="19" selection-start-column="37" selection-end-line="19" selection-end-column="37" />
-              <folding />
+            <state relative-caret-position="-859">
+              <caret line="12" column="27" lean-forward="true" selection-start-line="12" selection-start-column="27" selection-end-line="12" selection-end-column="27" />
+              <folding>
+                <element signature="e#0#31#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="20_news_group.ipynb" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/20_news_group.ipynb">
-          <provider selected="true" editor-type-id="ipnb-editor">
-            <state>
-              <selected id="0" />
+      <file leaf-file-name="svd_lda_train.rtf" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/20 news/svd_lda_train.rtf">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="690">
+              <caret line="75" column="17" lean-forward="true" selection-start-line="69" selection-start-column="0" selection-end-line="75" selection-end-column="17" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -89,6 +93,9 @@
         <option value="$PROJECT_DIR$/newsgroup.py" />
         <option value="$PROJECT_DIR$/snlda.py" />
         <option value="$PROJECT_DIR$/news_data.py" />
+        <option value="$PROJECT_DIR$/20 news/svd_lda_train.rtf" />
+        <option value="$PROJECT_DIR$/20 news/news_data.py" />
+        <option value="$PROJECT_DIR$/20 news/plot_accuracy.py" />
       </list>
     </option>
   </component>
@@ -120,6 +127,11 @@
               <item name="SNLDA" type="b2602c69:ProjectViewProjectNode" />
               <item name="SNLDA" type="462c0819:PsiDirectoryNode" />
             </path>
+            <path>
+              <item name="SNLDA" type="b2602c69:ProjectViewProjectNode" />
+              <item name="SNLDA" type="462c0819:PsiDirectoryNode" />
+              <item name="20 news" type="462c0819:PsiDirectoryNode" />
+            </path>
           </expand>
           <select />
         </subPane>
@@ -128,6 +140,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="settings.editor.selected.configurable" value="configurable.group.build" />
+    <property name="SearchEverywhereHistoryKey" value="PCA&#9;null&#9;null" />
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -141,7 +154,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Jupyter Notebook.SNLDA">
+  <component name="RunManager" selected="Python.plot_accuracy">
     <configuration name="SNLDA" type="Python.Ipnb" factoryName="Jupyter Notebook">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -175,13 +188,32 @@
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
     </configuration>
-    <list size="2">
+    <configuration name="plot_accuracy" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/20 news" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="SNLDA" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/20 news/plot_accuracy.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+    </configuration>
+    <list size="3">
       <item index="0" class="java.lang.String" itemvalue="Python.newsgroup" />
       <item index="1" class="java.lang.String" itemvalue="Jupyter Notebook.SNLDA" />
+      <item index="2" class="java.lang.String" itemvalue="Python.plot_accuracy" />
     </list>
     <recent_temporary>
-      <list size="1">
-        <item index="0" class="java.lang.String" itemvalue="Python.newsgroup" />
+      <list size="2">
+        <item index="0" class="java.lang.String" itemvalue="Python.plot_accuracy" />
+        <item index="1" class="java.lang.String" itemvalue="Python.newsgroup" />
       </list>
     </recent_temporary>
   </component>
@@ -203,9 +235,8 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1280" height="800" extended-state="0" />
-    <editor active="true" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24959612" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24959612" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="true" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3287483" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
@@ -257,21 +288,11 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/newsgroup.py">
+    <entry file="file://$PROJECT_DIR$/news_data.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="325">
-          <caret line="19" column="37" lean-forward="true" selection-start-line="19" selection-start-column="37" selection-end-line="19" selection-end-column="37" />
+        <state relative-caret-position="318">
+          <caret line="67" column="0" lean-forward="false" selection-start-line="67" selection-start-column="0" selection-end-line="67" selection-end-column="0" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/snlda.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1260">
-          <caret line="63" column="0" lean-forward="false" selection-start-line="63" selection-start-column="0" selection-end-line="63" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -282,11 +303,47 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/news_data.py">
+    <entry file="file://$PROJECT_DIR$/newsgroup.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1340">
-          <caret line="67" column="0" lean-forward="true" selection-start-line="67" selection-start-column="0" selection-end-line="67" selection-end-column="0" />
+        <state relative-caret-position="325">
+          <caret line="19" column="37" lean-forward="false" selection-start-line="19" selection-start-column="37" selection-end-line="19" selection-end-column="37" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/snlda.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="218">
+          <caret line="64" column="14" lean-forward="true" selection-start-line="63" selection-start-column="4" selection-end-line="64" selection-end-column="14" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/20 news/news_data.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="620">
+          <caret line="82" column="33" lean-forward="true" selection-start-line="82" selection-start-column="33" selection-end-line="82" selection-end-column="33" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/20 news/svd_lda_train.rtf">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="690">
+          <caret line="75" column="17" lean-forward="true" selection-start-line="69" selection-start-column="0" selection-end-line="75" selection-end-column="17" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/20 news/plot_accuracy.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-859">
+          <caret line="12" column="27" lean-forward="true" selection-start-line="12" selection-start-column="27" selection-end-line="12" selection-end-column="27" />
+          <folding>
+            <element signature="e#0#31#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
