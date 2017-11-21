@@ -33,6 +33,7 @@ def random_sample(n, k, m):
     return sample, CC
 
 # data and parameter
+'''
 from snlda import admm
 # all data: train_select and label
 sample_size1 = 100
@@ -42,7 +43,7 @@ rho = 10.0
 iter_num = 20 # maximal iter for admm
 X = train_select
 
-'''
+
 # select 20 documents
 sample_size1 = 10
 class_num = 2
@@ -50,7 +51,7 @@ label_num = 5 # labeled data in each category
 rho = 10.0
 iter_num = 20 # maximal iter for admm
 X = train_select[90:110,:]
-'''
+
 
 # ADMM
 labeled_info = random_sample(sample_size1, class_num, label_num)
@@ -72,3 +73,42 @@ clf = svm.SVC(kernel='linear')
 clf.fit(X[labeled_data,], label[labeled_data])
 accuracy = sum(clf.predict(X) == label) / float(class_num * sample_size1)
 print 'Prediction accuracy:', round(accuracy, 4)
+'''
+
+# labeled data = 5, topic_num = 20
+from snlda import admm
+from sklearn import svm
+sample_size1 = 100
+class_num = 20
+label_num = 5 # labeled data in each category
+rho = 10.0
+iter_num = 20 # maximal iter for admm
+X = train_select
+label1 = label
+
+Accuracy_l, Accuracy_u = [], []
+for ite in range(20):
+    labeled_info = random_sample(sample_size1, class_num, label_num)
+    sample = labeled_info[0]  # labeled data index
+    TOPIC_NUM = 20  # need to set it in snlda.py
+    # C = np.hstack((np.repeat(0, 10), np.repeat(1, 10)))
+    CC = labeled_info[1]
+    C = np.repeat(-1, class_num * sample_size1)
+    for i in CC.keys():
+        C[CC[i]] = i
+    # print(C)
+    # print(CC)
+    admm_fit = admm(X, CC, C, rho, iter_num)
+    labeled_data = sample
+    clf = svm.SVC(kernel='linear')
+    clf.fit(admm_fit[labeled_data, :], label1[labeled_data])
+    predict = clf.predict(admm_fit)
+    accuracy = sum(predict == label1) / float(class_num * sample_size1)
+    accuracy_labeled = sum(predict[labeled_data] == label1[labeled_data]) / float(class_num * label_num)
+    accuracy_unlabeled = sum(predict[-labeled_data] == label1[-labeled_data]) / float(class_num * (sample_size1-label_num))
+    print 'Prediction accuracy on labeled part for iteration', ite, ': ', round(accuracy_labeled * 100, 2)
+    print 'Prediction accuracy on unlabeled part for iteration', ite, ': ', round(accuracy_unlabeled * 100, 2)
+    Accuracy_l.append(accuracy_labeled)
+    Accuracy_u.append(accuracy_unlabeled)
+print 'Accuracy_labeled:', Accuracy_l, '\n mean:', np.mean(Accuracy_l), \
+    '\n Accuracy_unlabeled:', Accuracy_u, '\n mean:', np.mean(Accuracy_u)
