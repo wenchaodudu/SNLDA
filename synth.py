@@ -6,7 +6,7 @@ from scipy.sparse import lil_matrix, csr_matrix
 
 cluster_num = 4
 topic_num = 20
-doc_num = 500
+doc_num = 400
 vocab_size = 10000
 centers = np.zeros((cluster_num, topic_num))
 X = lil_matrix((doc_num, vocab_size))

@@ -6,6 +6,7 @@ from lda import update_variables
 import matplotlib.pyplot as plt
 from sklearn.manifold import TSNE, MDS 
 from sklearn.decomposition import LatentDirichletAllocation as LDA, PCA
+import progressbar
 import pdb
 
 TOPIC_NUM = 0
@@ -17,23 +18,29 @@ def admm(X, W, k, C, rho, iter_num):
     # initialize variables
     TOPIC_NUM = k
     DOC_NUM, VOCAB_SIZE = X.shape
-    print "Initializing."
     theta_1 = np.random.normal(scale=prior_std, size=(DOC_NUM, TOPIC_NUM))
     theta_2 = np.copy(theta_1)
+    '''
+    theta_1 = np.zeros((DOC_NUM, TOPIC_NUM))
+    theta_2 = np.zeros((DOC_NUM, TOPIC_NUM))
+    '''
     q_z = [dict() for x in range(DOC_NUM)]
     dirichlet_prior = np.full(TOPIC_NUM, 2)
-    for x in range(DOC_NUM):
-        for y in range(VOCAB_SIZE):
-            if X[x, y]:
-                q_z[x][y] = np.random.dirichlet(dirichlet_prior, 1)[0]
     beta = np.random.dirichlet(np.full(VOCAB_SIZE, 2), TOPIC_NUM)
     u = np.zeros((DOC_NUM, TOPIC_NUM))
+    print "Initializing."
+    bar = progressbar.ProgressBar()
+    for y in bar(range(VOCAB_SIZE)):
+        for x in range(DOC_NUM):
+            if X[x, y]:
+                q_z[x][y] = np.random.dirichlet(dirichlet_prior, 1)[0]
 
+    labeled = C != -1
     for it in range(iter_num):
-        theta_1, q_z, beta = update_variables(X, theta_1, theta_2, q_z, beta, rho, u, it)
+        theta_1, q_z, beta = update_variables(X, theta_1, theta_2, q_z, beta, C, prior_std**2, rho, u, it)
         theta_2, obj = update_theta(theta_1, theta_2, W, C, 1 / (2 * prior_std**2), u, rho, it)
-        u += (theta_1 - theta_2)
-        print np.linalg.norm(theta_1 - theta_2)
+        u[labeled] += (theta_1[labeled] - theta_2[labeled])
+        print np.linalg.norm(theta_1[labeled] - theta_2[labeled])
 
         '''
         if it % 5 == 4:
@@ -42,8 +49,13 @@ def admm(X, W, k, C, rho, iter_num):
             plt.scatter(low_dim[:, 0], low_dim[:, 1], c=colors)
             plt.show()
         '''
+    solution = theta_1
+    solution[labeled] = (theta_1[labeled] + theta_2[labeled]) / 2
+    solution -= np.mean(solution, axis=1)[:, np.newaxis]
+    solution = np.exp(solution)
+    solution /= np.sum(solution, axis=1)[:, np.newaxis]
 
-    return (theta_1 + theta_2) / 2
+    return solution
 
 if __name__ == "__main__":
     synth = pickle.load(open('synthetic_data'))
@@ -57,9 +69,9 @@ if __name__ == "__main__":
         if c is not None:
             C[c] = np.where(clusters==c)[0]
             CC[c] = np.where(labels==c)[0]
-    color = {0: 'g', 1: 'b', 2: 'r', 3: 'y'}
+    color = {0: 'g', 1: 'b', 2: 'r', 3: 'y', 4: 'm', 5: 'k', 6:'c', 7:'peru', 8:'coral', 9:'gold'}
     colors = [color[x] for x in clusters]
-    solution = admm(data, CC, 20, labels, 10, 5)
+    solution = admm(data, CC, 20, labels, 1, 2)
     #solution = LDA(n_components=20, learning_method='batch', max_iter=50, n_jobs=2).fit_transform(data)
     low_dim = PCA(n_components=2).fit_transform(solution)
     plt.scatter(low_dim[:, 0], low_dim[:, 1], c=colors)
