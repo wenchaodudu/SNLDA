@@ -33,7 +33,7 @@ def update_theta(theta0, starting, W, C, lamba, u, rho, it):
     best_obj = 0
 
     global sigma
-    sigma = 1. / theta0.shape[1]
+    sigma = theta0.shape[1]
     for _ in range(10):
         ite = np.where(C!=-1)[0]
         random.shuffle(ite)
@@ -73,12 +73,17 @@ def objective(theta, theta0, W, C, lamda, u, rho):
     denom = np.zeros(len(C))
     labeled = C != -1
     total = 0
+    norm_theta = np.zeros(theta.shape)
+    norm_theta[labeled] = np.exp(norm_theta[labeled])
+    norm_theta[labeled] /= np.sum(norm_theta[labeled], axis=1)[:, np.newaxis]
     for x in range(len(C)):
         if labeled[x]:
-            denom[x] = np.sum(np.exp(-np.linalg.norm(theta[x] - theta[labeled], axis=1)**2 * sigma)) - 1 # excluding the exponential of distance to self
+            #denom[x] = np.sum(np.exp(-np.linalg.norm(theta[x] - theta[labeled], axis=1)**2 * sigma)) - 1 # excluding the exponential of distance to self
+            denom[x] = np.sum(np.exp(np.dot(norm_theta[labeled], norm_theta[x]) * sigma)) - np.exp(np.dot(norm_theta[x], norm_theta[x]))
     for cat_list in W.values():
         for x in cat_list:
-            total += np.sum(np.linalg.norm(theta[x] - theta[cat_list], axis=1)**2 * sigma)
+            #total += np.sum(np.linalg.norm(theta[x] - theta[cat_list], axis=1)**2 * sigma)
+            total -= np.sum(np.dot(norm_theta[cat_list], norm_theta[x]) * sigma)
             total += np.log(denom[x]) * (len(cat_list) - 1)
     total += np.linalg.norm(theta[labeled])**2
     print total
@@ -105,20 +110,39 @@ def gradient(i, ci, theta, theta0, W, C, lamda, u, rho):
     p_ij = np.zeros(len(C))
     p_ji = np.zeros(len(C))
     labeled = C != -1
-    p_ij_denom = np.sum(np.exp(-np.linalg.norm(theta[i] - theta[labeled], axis=1)**2 * sigma)) - 1
+    norm_theta = np.zeros(theta.shape)
+    norm_theta[labeled] = np.exp(norm_theta[labeled])
+    norm_theta[labeled] /= np.sum(norm_theta[labeled], axis=1)[:, np.newaxis]
+    #p_ij_denom = np.sum(np.exp(-np.linalg.norm(theta[i] - theta[labeled], axis=1)**2 * sigma)) - 1
+    p_ij_denom = np.sum(np.exp(np.dot(norm_theta[labeled], norm_theta[i]) * sigma)) - np.exp(np.dot(norm_theta[i], norm_theta[i]))
     same_label = W[ci]
+
+    def dot_gradient(ind, lst):
+        dot_product = np.dot(norm_theta[lst], norm_theta[ind])
+        return -np.multiply(norm_theta[ind][np.newaxis, :], norm_theta[lst] - dot_product[:, np.newaxis]) * sigma
+
     for x in range(len(C)):
         if labeled[x] and x != i:
+            '''
             dist = np.exp(-np.linalg.norm(theta[i] - theta[x])**2 * sigma)
             p_ij[x] = dist / p_ij_denom
             p_ji[x] = dist / (np.sum(np.exp(-np.linalg.norm(theta[x] - theta[labeled], axis=1)**2 * sigma)) - 1)
+            '''
+            dist = np.exp(np.dot(norm_theta[i], norm_theta[x]) * sigma)
+            p_ij[x] = dist / p_ij_denom
+            p_ji[x] = dist / (np.sum(np.exp(np.dot(norm_theta[labeled], norm_theta[x]) * sigma)) - np.exp(np.dot(norm_theta[i], norm_theta[i]))) 
     grad = np.zeros(len(theta[0]))
+    '''
     grad += 2 * np.sum(np.multiply(theta[i] - theta[same_label], 2 - p_ji[same_label][:, np.newaxis]), axis=0)
     grad -= 2 * (len(same_label) - 1) * np.sum(np.multiply(theta[i] - theta[labeled], p_ij[labeled][:, np.newaxis]), axis=0)
+    '''
+    grad += np.dot((2 - p_ji[same_label]), dot_gradient(i, same_label))
+    grad -= (len(same_label) - 1) * np.dot(p_ij[labeled], dot_gradient(i, labeled))
     for key in W:
         same_label_j = W[key]
         count = len(same_label_j) - 1 if key != ci else len(same_label_j) - 2
-        grad -= 2 * count * np.sum(np.multiply(theta[i] - theta[same_label_j], p_ji[same_label_j][:, np.newaxis]), axis=0)
+        #grad -= 2 * count * np.sum(np.multiply(theta[i] - theta[same_label_j], p_ji[same_label_j][:, np.newaxis]), axis=0)
+        grad -= count * np.dot(p_ji[same_label_j], dot_gradient(i, same_label_j))
     grad += 2 * lamda * theta[i]
     grad += rho * (theta[i] - theta0[i] - u[i])
     return grad
@@ -128,6 +152,7 @@ if __name__ == '__main__':
     # update_theta(theta0, W, lamba, u, rho)
     theta0 = np.random.rand(500, 20)
     theta = np.random.rand(500, 20)
+    X = np.zeros((500, 20))
     #W = {1:list(range(40)), 2:list(range(40,80))}
     W = {}
     C = np.full(500,-1)
@@ -139,11 +164,13 @@ if __name__ == '__main__':
     for i in range(80,100):
         C[i] = -1
     '''
-    for i in range(10):
+    for i in range(4):
         C[i*20:(i+1)*20] = i
         W[i] = range(i*20, (i+1)*20)
-    lamba = 1
+        X[i*20:(i+1)*20, i*4:(i+1)*4] = 1
+    lamba = 0
     u = np.random.rand(500, 20)
     rho = 0
     G = gradient(0,1,theta, theta0, W,C, lamba, u, rho)
-    N = update_theta(theta0, theta0, W, C,  lamba, u, rho, 0)
+    N = update_theta(theta, theta0, W, C,  lamba, u, rho, 0)
+    print objective(X, X, W, C, lamba, u, rho)
