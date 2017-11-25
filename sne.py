@@ -27,15 +27,15 @@ def update_theta(theta0, starting, W, C, lamba, u, rho, it):
     # processing W and C
 
     theta = starting
-    adagrad = np.ones(theta.shape) * 100
+    adagrad = np.ones(theta.shape) * 500
     gamma = 0.2
     best_theta = np.zeros(theta.shape)
     best_obj = 0
 
     global sigma
     #sigma = 1 / theta0.shape[1]
-    sigma = 1
-    for _ in range(30):
+    sigma = .2
+    for _ in range(20):
         ite = np.where(C!=-1)[0]
         random.shuffle(ite)
         grad = np.zeros(theta.shape)
@@ -110,12 +110,14 @@ def gradient(i, ci, theta, theta0, W, C, lamda, u, rho):
     p_ji = np.zeros(len(C))
     labeled = C != -1
     translation = theta - np.mean(theta, axis=1)[:, np.newaxis] 
+    TOPIC_NUM = theta.shape[1]
+    A = (np.diag(np.ones(TOPIC_NUM)) * (TOPIC_NUM + 1) - np.ones((TOPIC_NUM, TOPIC_NUM))) / TOPIC_NUM
+    A = np.dot(A, A)
     p_ij_denom = np.sum(np.exp(-np.linalg.norm(translation[i] - translation[labeled], axis=1)**2 * sigma)) - 1
     same_label = W[ci]
 
     def dot_gradient(ind, lst):
-        dot_product = np.dot(norm_theta[lst], norm_theta[ind])
-        return -np.multiply(norm_theta[ind][np.newaxis, :], norm_theta[lst] - dot_product[:, np.newaxis]) * sigma
+        return np.dot(theta[ind] - theta[lst], A)
 
     for x in range(len(C)):
         if labeled[x] and x != i:
@@ -123,13 +125,13 @@ def gradient(i, ci, theta, theta0, W, C, lamda, u, rho):
             p_ij[x] = dist / p_ij_denom
             p_ji[x] = dist / (np.sum(np.exp(-np.linalg.norm(translation[x] - translation[labeled], axis=1)**2 * sigma)) - 1)
     grad = np.zeros(len(theta[0]))
-    grad += 2 * np.dot(2 - p_ji[same_label], translation[i] - translation[same_label])
-    grad -= 2 * (len(same_label) - 1) * np.dot( p_ij[labeled], translation[i] - translation[labeled])
+    grad += 2 * np.dot(2 - p_ji[same_label], dot_gradient(i, same_label))
+    grad -= 2 * (len(same_label) - 1) * np.dot(p_ij[labeled], dot_gradient(i, labeled))
     for key in W:
         same_label_j = W[key]
         count = len(same_label_j) - 1 if key != ci else len(same_label_j) - 2
-        grad -= 2 * count * np.dot(p_ji[same_label_j], translation[i] - translation[same_label_j])
-    grad += 2 * lamda * translation[i]
+        grad -= 2 * count * np.dot(p_ji[same_label_j], dot_gradient(i, same_label_j))
+    grad += 2 * lamda * np.dot(theta[i], A)
     grad += rho * (theta[i] - theta0[i] - u[i])
     return grad
 
