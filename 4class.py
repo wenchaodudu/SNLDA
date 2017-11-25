@@ -1,19 +1,23 @@
 import scipy.io
 import numpy as np
+import pdb
 train = scipy.io.loadmat('./20 news/ng2011293x8165itrn.mat')
 train_data = train['Dtrn'].tolist()[0][0][1]
 train_label_matrix = train['Dtrn'].tolist()[0][0][2]
 sample = {}
 subset = []
 label = []
-sample_size1 = 100
+sample_size1 = 500
 class_num = 4
+q_z = np.load('init.dat.20')
 for i in [1, 9, 12, 17]:
     sample_i = np.random.choice(np.where(train_label_matrix.todense()[:, i] != 0)[0], sample_size1, replace=False)
     sample[str(i)] = sample_i
     subset = np.hstack((subset, sample_i))
     label = np.hstack((label, np.repeat(i, sample_size1)))
+subset = subset.astype(np.int32)
 train_select = train_data[subset, ]
+q_z_select = q_z[subset, ]
 
 label = np.repeat(0, class_num * sample_size1)
 for x in range(class_num):
@@ -35,14 +39,14 @@ def random_sample(n, k, m):
 # labeled data = 5, topic_num = 20
 from snlda import admm
 from sklearn import svm
-label_num = sample_size1 / 5 # labeled data in each category
+label_num = sample_size1 / 10 # labeled data in each category
 rho = 10.0
-iter_num = 5 # maximal iter for admm
+iter_num = 10 # maximal iter for admm
 X = train_select
 label1 = label
 
 Accuracy_l, Accuracy_u = [], []
-for ite in range(20):
+for ite in range(5):
     labeled_info = random_sample(sample_size1, class_num, label_num)
     sample = labeled_info[0]  # labeled data index
     TOPIC_NUM = 20  # need to set it in snlda.py
@@ -53,7 +57,7 @@ for ite in range(20):
         C[CC[i]] = i
     # print(C)
     # print(CC)
-    admm_fit = admm(X, CC, TOPIC_NUM, C, rho, iter_num)
+    admm_fit = admm(X, CC, TOPIC_NUM, C, rho, iter_num, q_z_select)
     labeled_data = sample
     clf = svm.SVC(kernel='linear')
     clf.fit(admm_fit[labeled_data, :], label1[labeled_data])
