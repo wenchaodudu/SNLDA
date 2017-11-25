@@ -49,13 +49,18 @@ def admm(X, W, k, C, rho, iter_num):
             plt.scatter(low_dim[:, 0], low_dim[:, 1], c=colors)
             plt.show()
         '''
-    solution = theta_1
-    solution[labeled] = (theta_1[labeled] + theta_2[labeled]) / 2
-    solution -= np.mean(solution, axis=1)[:, np.newaxis]
-    solution = np.exp(solution)
-    solution /= np.sum(solution, axis=1)[:, np.newaxis]
-
-    return solution
+    def normalize_exp(arr):
+        arr -= np.mean(arr, axis=1)[:, np.newaxis]
+        arr = np.exp(arr)
+        arr /= np.sum(arr, axis=1)[:, np.newaxis]
+        return arr
+    '''
+    solution_1 = normalize_exp(theta_1)
+    solution_2 = normalize_exp(theta_2)
+    solution_1[labeled] = (solution_1[labeled] + solution_2[labeled]) / 2
+    '''
+    theta_1[labeled] = (theta_1[labeled] + theta_2[labeled]) / 2
+    return theta_1 - np.mean(theta_1, axis=1)[:, np.newaxis]
 
 if __name__ == "__main__":
     synth = pickle.load(open('synthetic_data'))
@@ -71,7 +76,7 @@ if __name__ == "__main__":
             CC[c] = np.where(labels==c)[0]
     color = {0: 'g', 1: 'b', 2: 'r', 3: 'y', 4: 'm', 5: 'k', 6:'c', 7:'peru', 8:'coral', 9:'gold'}
     colors = [color[x] for x in clusters]
-    solution = admm(data, CC, 20, labels, 1, 2)
+    solution = admm(data, CC, 20, labels, 2, 4)
     #solution = LDA(n_components=20, learning_method='batch', max_iter=50, n_jobs=2).fit_transform(data)
     low_dim = PCA(n_components=2).fit_transform(solution)
     plt.scatter(low_dim[:, 0], low_dim[:, 1], c=colors)

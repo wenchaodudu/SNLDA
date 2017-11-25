@@ -2,7 +2,7 @@ import numpy as np
 import pdb
 from scipy.special import digamma
 
-iter_num = 4
+iter_num = 6
 
 np.seterr(over='raise')
 
