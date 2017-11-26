@@ -39,8 +39,8 @@ def random_sample(n, k, m):
 # labeled data = 5, topic_num = 20
 from snlda import admm
 from sklearn import svm
-label_num = sample_size1 / 10 # labeled data in each category
-rho = 10.0
+label_num = sample_size1 / 5 # labeled data in each category
+rho = 10
 iter_num = 10 # maximal iter for admm
 X = train_select
 label1 = label
@@ -52,15 +52,22 @@ for ite in range(5):
     TOPIC_NUM = 20  # need to set it in snlda.py
     # C = np.hstack((np.repeat(0, 10), np.repeat(1, 10)))
     CC = labeled_info[1]
+    CCC = dict()
     C = np.repeat(-1, class_num * sample_size1)
+    clf_train_data = []
     for i in CC.keys():
-        C[CC[i]] = i
+        ll = len(CC[i])
+        C[CC[i][:ll/2]] = i
+        CCC[i] = CC[i][:ll/2]
+        clf_train_data += CC[i][ll/2:].tolist()
     # print(C)
     # print(CC)
-    admm_fit = admm(X, CC, TOPIC_NUM, C, rho, iter_num, q_z_select)
+    #admm_fit = admm(X, CC, TOPIC_NUM, C, rho, iter_num, q_z_select)
+    admm_fit = admm(X, CCC, TOPIC_NUM, C, rho, iter_num, q_z_select)
     labeled_data = sample
     clf = svm.SVC(kernel='linear')
     clf.fit(admm_fit[labeled_data, :], label1[labeled_data])
+    #clf.fit(admm_fit[clf_train_data, :], label1[clf_train_data])
     predict = clf.predict(admm_fit)
     accuracy = sum(predict == label1) / float(class_num * sample_size1)
     accuracy_labeled = sum(predict[labeled_data] == label1[labeled_data]) / float(class_num * label_num)

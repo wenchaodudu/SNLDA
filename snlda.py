@@ -14,7 +14,7 @@ DOC_NUM = 0
 VOCAB_SIZE = 0
 prior_std = np.sqrt(2) / 2
 
-def admm(X, W, k, C, rho, iter_num):
+def admm(X, W, k, C, rho, iter_num, init=None):
     # initialize variables
     TOPIC_NUM = k
     DOC_NUM, VOCAB_SIZE = X.shape
@@ -24,16 +24,19 @@ def admm(X, W, k, C, rho, iter_num):
     theta_1 = np.zeros((DOC_NUM, TOPIC_NUM))
     theta_2 = np.zeros((DOC_NUM, TOPIC_NUM))
     '''
-    q_z = [dict() for x in range(DOC_NUM)]
+    q_z = [[] for x in range(DOC_NUM)]
     dirichlet_prior = np.full(TOPIC_NUM, 2)
     beta = np.random.dirichlet(np.full(VOCAB_SIZE, 2), TOPIC_NUM)
     u = np.zeros((DOC_NUM, TOPIC_NUM))
-    print "Initializing."
     bar = progressbar.ProgressBar()
-    for y in bar(range(VOCAB_SIZE)):
-        for x in range(DOC_NUM):
-            if X[x, y]:
-                q_z[x][y] = np.random.dirichlet(dirichlet_prior, 1)[0]
+    if init is None:
+        print "Initializing."
+        for y in bar(range(VOCAB_SIZE)):
+            for x in range(DOC_NUM):
+                if X[x, y] > 0:
+                    q_z[x].append([y, X[x, y], np.random.dirichlet(dirichlet_prior, 1)[0]])
+    else:
+        q_z = init
 
     labeled = C != -1
     for it in range(iter_num):
@@ -60,7 +63,8 @@ def admm(X, W, k, C, rho, iter_num):
     solution_1[labeled] = (solution_1[labeled] + solution_2[labeled]) / 2
     '''
     theta_1[labeled] = (theta_1[labeled] + theta_2[labeled]) / 2
-    return theta_1 - np.mean(theta_1, axis=1)[:, np.newaxis]
+    solution = theta_1 - np.mean(theta_1, axis=1)[:, np.newaxis]
+    return theta_1
 
 if __name__ == "__main__":
     synth = pickle.load(open('synthetic_data'))

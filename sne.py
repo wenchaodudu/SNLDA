@@ -27,15 +27,16 @@ def update_theta(theta0, starting, W, C, lamba, u, rho, it):
     # processing W and C
 
     theta = starting
-    adagrad = np.ones(theta.shape) * 500
+    adagrad = np.ones(theta.shape) * 1000
     gamma = 0.2
     best_theta = np.zeros(theta.shape)
     best_obj = 0
 
     global sigma
-    #sigma = 1 / theta0.shape[1]
-    sigma = .2
-    for _ in range(20):
+    #sigma = 1. / theta0.shape[1]
+    sigma = .1
+    iter_num = 20 if it == 0 else 5
+    for _ in range(iter_num):
         ite = np.where(C!=-1)[0]
         random.shuffle(ite)
         grad = np.zeros(theta.shape)
@@ -85,7 +86,7 @@ def objective(theta, theta0, W, C, lamda, u, rho):
         for x in cat_list:
             total += np.sum(np.linalg.norm(translation[x] - translation[cat_list], axis=1)**2 * sigma)
             total += np.log(denom[x]) * (len(cat_list) - 1)
-    total += np.linalg.norm(translation[labeled])**2
+    total += np.linalg.norm(theta[labeled])**2
     print total
     total += rho / 2 * np.linalg.norm(theta0[labeled] - theta[labeled] + u[labeled])**2
     return total
@@ -131,18 +132,19 @@ def gradient(i, ci, theta, theta0, W, C, lamda, u, rho):
         same_label_j = W[key]
         count = len(same_label_j) - 1 if key != ci else len(same_label_j) - 2
         grad -= 2 * count * np.dot(p_ji[same_label_j], dot_gradient(i, same_label_j))
-    grad += 2 * lamda * np.dot(theta[i], A)
+    #grad += 2 * lamda * np.dot(theta[i], A)
+    grad += 2 * lamda * theta[i]
     grad += rho * (theta[i] - theta0[i] - u[i])
     return grad
 
 if __name__ == '__main__':
-    theta0 = np.random.rand(500, 20)
-    theta = np.random.rand(500, 20)
-    X = np.zeros((500, 20))
-    Y = np.zeros((500, 20))
+    theta0 = np.random.rand(2000, 20)
+    theta = np.random.rand(2000, 20)
+    X = np.zeros((2000, 20))
+    Y = np.zeros((2000, 20))
     #W = {1:list(range(40)), 2:list(range(40,80))}
     W = {}
-    C = np.full(500,-1)
+    C = np.full(2000,-1)
     '''
     for i in range(40):
         C[i] = 1
@@ -151,12 +153,13 @@ if __name__ == '__main__':
     for i in range(80,100):
         C[i] = -1
     '''
+    c_num = 50
     for i in range(4):
-        C[i*20:(i+1)*20] = i
-        W[i] = range(i*20, (i+1)*20)
-        X[i*20:(i+1)*20, i*4:(i+1)*4] = 1
-    lamba = .1
-    u = np.random.rand(500, 20)
+        C[i*c_num:(i+1)*c_num] = i
+        W[i] = range(i*c_num, (i+1)*c_num)
+        X[i*c_num:(i+1)*c_num, i*4:(i+1)*4] = 1
+    lamba = .5
+    u = np.random.rand(2000, 20)
     rho = 0
     print objective(X, X, W, C, lamba, u, rho)
     print objective(Y, Y, W, C, lamba, u, rho)
