@@ -20,6 +20,7 @@ np.seterr(invalid='raise', divide='raise')
 
 step_size = .5 * 1e-3
 sigma = 0.1
+weight = 1
 
 def update_theta(theta0, starting, W, C, lamba, u, rho, it):
     # W: a dict representing the category
@@ -27,22 +28,22 @@ def update_theta(theta0, starting, W, C, lamba, u, rho, it):
     # processing W and C
 
     theta = starting
-    adagrad = np.ones(theta.shape) * 1000
+    adagrad = np.ones(theta.shape) * 500
     gamma = 0.2
     best_theta = np.zeros(theta.shape)
     best_obj = 0
 
     global sigma
-    #sigma = 1. / theta0.shape[1]
-    sigma = .1
-    iter_num = 20 if it == 0 else 5
+    sigma = 1. / theta0.shape[1]
+    #sigma = .1
+    iter_num = 20 if it == 0 else 10
     for _ in range(iter_num):
         ite = np.where(C!=-1)[0]
         random.shuffle(ite)
         grad = np.zeros(theta.shape)
         y_last = np.zeros(theta.shape)
         for i in ite:
-            grad[i] = - gradient(i, C[i], theta, theta0, W, C, lamba, u, rho)
+            grad[i] = - gradient(i, C[i], theta, theta0, W, C, lamba, u, rho, it)
             theta[i, :] += np.divide(grad[i], adagrad[i])
             adagrad[i] = np.sqrt(adagrad[i]**2 + grad[i]**2)
         '''
@@ -52,14 +53,14 @@ def update_theta(theta0, starting, W, C, lamba, u, rho, it):
         theta += np.divide(grad, adagrad)
         adagrad = np.sqrt(adagrad**2 + grad**2)
         '''
-        obj = objective(theta, theta0, W, C, lamba, u, rho)
+        obj = objective(theta, theta0, W, C, lamba, u, rho, it)
         if obj > best_obj:
             best_theta = theta
             best_obj = obj
     return (theta, obj)
 
 
-def objective(theta, theta0, W, C, lamda, u, rho):
+def objective(theta, theta0, W, C, lamda, u, rho, it):
     # W: a dict representing the category
     # C: a list representation
     '''
@@ -86,12 +87,14 @@ def objective(theta, theta0, W, C, lamda, u, rho):
         for x in cat_list:
             total += np.sum(np.linalg.norm(translation[x] - translation[cat_list], axis=1)**2 * sigma)
             total += np.log(denom[x]) * (len(cat_list) - 1)
-    total += np.linalg.norm(theta[labeled])**2
+    total *= weight
+    total += np.linalg.norm(translation[labeled])**2
     print total
-    total += rho / 2 * np.linalg.norm(theta0[labeled] - theta[labeled] + u[labeled])**2
+    if it:
+        total += rho / 2 * np.linalg.norm(theta0[labeled] - theta[labeled] + u[labeled])**2
     return total
 
-def gradient(i, ci, theta, theta0, W, C, lamda, u, rho):
+def gradient(i, ci, theta, theta0, W, C, lamda, u, rho, it):
     # W: a dict representing the category
     # C: labels of documents
     # ci: the category of i-th point
@@ -132,9 +135,11 @@ def gradient(i, ci, theta, theta0, W, C, lamda, u, rho):
         same_label_j = W[key]
         count = len(same_label_j) - 1 if key != ci else len(same_label_j) - 2
         grad -= 2 * count * np.dot(p_ji[same_label_j], dot_gradient(i, same_label_j))
-    #grad += 2 * lamda * np.dot(theta[i], A)
-    grad += 2 * lamda * theta[i]
-    grad += rho * (theta[i] - theta0[i] - u[i])
+    grad *= weight
+    grad += 2 * lamda * np.dot(theta[i], A)
+    #grad += 2 * lamda * theta[i]
+    if it:
+        grad += rho * (theta[i] - theta0[i] - u[i])
     return grad
 
 if __name__ == '__main__':

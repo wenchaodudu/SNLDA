@@ -18,18 +18,21 @@ def update_variables(X, theta_1, theta_2, q_z, beta, labels, lbda, rho, u, it):
         print "Updating topics; iter:", itt
         new_beta = np.ones(beta.shape)
         for x in labeled + unlabeled:
+            weight = 1 if labels[x] != -1 else 1
             # update theta
             #Ez = np.sum(q_z[x][w] * X[x, w] for w in q_z[x])
             Ez = np.sum(tp[1] * tp[2] for tp in q_z[x])
             pi = exp_proportion(theta_1[x])
-            if labels[x] != -1 and it:
+            #if labels[x] != -1 and it:
+            if labels[x] != -1:
                 theta_1[x] = (Ez - np.sum(Ez) * pi) / rho + theta_2[x] - u[x]
             else:
                 theta_1[x] = (Ez - np.sum(Ez) * pi) * lbda
 
             # update q_z
             eta_hessian = np.asmatrix(pi).T * np.asmatrix(pi) - np.diag(pi)
-            if labels[x] != -1 and it:
+            #if labels[x] != -1 and it:
+            if labels[x] != -1:
                 Sigma = eta_hessian * np.sum(Ez) - rho
             else:
                 Sigma = eta_hessian * np.sum(Ez) - 1 / lbda
@@ -40,7 +43,7 @@ def update_variables(X, theta_1, theta_2, q_z, beta, labels, lbda, rho, u, it):
                 #q_z[x][w] = qz / np.sum(qz)
                 tp[2] = qz / np.sum(qz)
                 #new_beta[:, w] += q_z[x][w] * X[x, w]
-                new_beta[:, tp[0]] += tp[1] * tp[2]
+                new_beta[:, tp[0]] += weight * tp[1] * tp[2]
 
         # update beta
         new_beta /= np.sum(new_beta, axis=1)[:, np.newaxis]

@@ -7,10 +7,21 @@ train_label_matrix = train['Dtrn'].tolist()[0][0][2]
 sample = {}
 subset = []
 label = []
-sample_size1 = 500
-class_num = 4
+sample_size1 = 300
+class_num = 3
 q_z = np.load('init.dat.20')
-for i in [1, 9, 12, 17]:
+
+'''
+label2ind = dict()
+label2ind[0] = 1
+for x in range(1, 6):
+    label2ind[x] = 2
+label2ind[6] = 3
+'''
+
+for i in [0, 15, 19]:
+#for i in [1, 9, 12, 17]:
+#for i in range(20):
     sample_i = np.random.choice(np.where(train_label_matrix.todense()[:, i] != 0)[0], sample_size1, replace=False)
     sample[str(i)] = sample_i
     subset = np.hstack((subset, sample_i))
@@ -39,9 +50,9 @@ def random_sample(n, k, m):
 # labeled data = 5, topic_num = 20
 from snlda import admm
 from sklearn import svm
-label_num = sample_size1 / 5 # labeled data in each category
+label_num = 100 # labeled data in each category
 rho = 10
-iter_num = 10 # maximal iter for admm
+iter_num = 6 # maximal iter for admm
 X = train_select
 label1 = label
 
