@@ -2,7 +2,7 @@ import numpy as np
 import itertools
 import pickle
 from sne import update_theta
-from lda import update_variables
+from lda import update_variables, dtm_update
 import matplotlib.pyplot as plt
 from sklearn.manifold import TSNE, MDS 
 from sklearn.decomposition import LatentDirichletAllocation as LDA, PCA
@@ -39,13 +39,16 @@ def admm(X, W, k, C, rho, iter_num, init=None):
         q_z = init
 
     labeled = C != -1
+    convergence = []
     for it in range(iter_num):
-        theta_2, obj = update_theta(theta_1, theta_2, W, C, 1 / (2 * prior_std**2), u, rho, it)
+        theta_2, obj, g = update_theta(theta_1, theta_2, W, C, 1 / (2 * prior_std**2), u, rho, it)
         theta_2 -= np.mean(theta_2, axis=1)[:, np.newaxis]
         theta_1, q_z, beta = update_variables(X, theta_1, theta_2, q_z, beta, C, prior_std**2, rho, u, it)
         theta_1 -= np.mean(theta_1, axis=1)[:, np.newaxis]
         u[labeled] += (theta_1[labeled] - theta_2[labeled])
-        print np.linalg.norm(theta_1[labeled] - theta_2[labeled])
+        conv = np.linalg.norm(theta_1[labeled] - theta_2[labeled])
+        convergence.append(conv)
+        print conv
 
         '''
         if it % 5 == 4:
@@ -54,6 +57,8 @@ def admm(X, W, k, C, rho, iter_num, init=None):
             plt.scatter(low_dim[:, 0], low_dim[:, 1], c=colors)
             plt.show()
         '''
+    print convergence 
+
     def normalize_exp(arr):
         arr -= np.mean(arr, axis=1)[:, np.newaxis]
         arr = np.exp(arr)
@@ -67,6 +72,18 @@ def admm(X, W, k, C, rho, iter_num, init=None):
     theta_1[labeled] = (theta_1[labeled] + theta_2[labeled]) / 2
     solution = theta_1 - np.mean(theta_1, axis=1)[:, np.newaxis]
     return theta_1
+
+def DTM(X, W, k, iter_num, init=None):
+    # initialize variables
+    TOPIC_NUM = k
+    DOC_NUM, VOCAB_SIZE = X.shape
+    theta = np.random.uniform(low=0, high=1, size=(DOC_NUM, TOPIC_NUM))
+    theta /= np.sum(theta, axis=1)[:, np.newaxis]
+    phi = np.random.uniform(low=0, high=1, size=(TOPIC_NUM, VOCAB_SIZE))
+    phi /= np.sum(phi, axis=1)[:, np.newaxis]
+    labeled = C != -1
+    theta, phi = dtm_update(X, W, k, theta, phi)
+    return theta
 
 if __name__ == "__main__":
     synth = pickle.load(open('synthetic_data'))
@@ -82,7 +99,7 @@ if __name__ == "__main__":
             CC[c] = np.where(labels==c)[0]
     color = {0: 'g', 1: 'b', 2: 'r', 3: 'y', 4: 'm', 5: 'k', 6:'c', 7:'peru', 8:'coral', 9:'gold'}
     colors = [color[x] for x in clusters]
-    solution = admm(data, CC, 20, labels, 2, 4)
+    solution = admm(data, CC, 20, labels, 2, 20)
     #solution = LDA(n_components=20, learning_method='batch', max_iter=50, n_jobs=2).fit_transform(data)
     low_dim = PCA(n_components=2).fit_transform(solution)
     plt.scatter(low_dim[:, 0], low_dim[:, 1], c=colors)

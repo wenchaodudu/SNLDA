@@ -11,9 +11,10 @@ def exp_proportion(theta):
     return exp_theta / np.sum(exp_theta)
 
 def update_variables(X, theta_1, theta_2, q_z, beta, labels, lbda, rho, u, it):
-    DOC_NUM, TOPIC_NUM = X.shape
+    DOC_NUM, VOCAB_SIZE = X.shape
     labeled = [x for x in range(DOC_NUM) if labels[x] != -1]
     unlabeled = [x for x in range(DOC_NUM) if labels[x] == -1]
+    total = 0
     for itt in range(iter_num):
         print "Updating topics; iter:", itt
         new_beta = np.ones(beta.shape)
@@ -49,5 +50,77 @@ def update_variables(X, theta_1, theta_2, q_z, beta, labels, lbda, rho, u, it):
         new_beta /= np.sum(new_beta, axis=1)[:, np.newaxis]
         print np.linalg.norm(new_beta - beta)
         beta = new_beta
+            
     return theta_1, q_z, beta
+
+def dtm_update(X, W, topic_num, theta, phi, it_num):
+    DOC_NUM, VOCAB_SIZE = X.shape
+    gamma = 0.1
+
+    def Q(theta):
+        total = 0
+        for x in range(DOC_NUM):
+            for y in range(VOCAB_SIZE):
+                if X[x, y] > 0:
+                    post = np.multiply(theta[x, :], phi[:, y])
+                    post /= np.sum(post)
+                    total += X[x, y] * np.dot(post, np.log(theta[x, :]) + np.log(phi[:, y]))
+        return total
+
+    def R(theta):
+        dist = np.zeros((DOC_NUM, DOC_NUM))
+        for x in range(DOC_NUM):
+            dist[x] = np.linalg.norm(theta[x] - theta, axis=1)**2
+        return np.sum(dist) / np.sum(np.multiply(W, dist))
+                        
+    for _ in range(it_num):
+        new_phi = np.zeros(phi.shape)
+        for x in range(DOC_NUM):
+            for y in range(VOCAB_SIZE):
+                if X[x, y] > 0:
+                    post = np.multiply(theta[x, :], phi[:, y])
+                    post /= np.sum(post)
+                    new_phi[:, y] += post * X[x, y]
+        new_phi /= np.sum(new_phi, axis=1)[:, np.newaxis]
+        phi = new_phi
+        theta_1 = np.copy(theta)
+
+        dist = np.zeros((DOC_NUM, DOC_NUM))
+        for x in range(DOC_NUM):
+            dist[x] = np.linalg.norm(theta[x] - theta, axis=1)**2
+
+        alpha = R(theta)
+        for k in range(topic_num):
+            for x in range(DOC_NUM):
+                beta = np.min((DOC_NUM * theta_1[x, k] + alpha * np.dot(W[x, :], theta_1[:, k])) / (np.sum(theta_1[:, k]) + alpha * np.sum(W[x, :]) * theta_1[x, k]), 1 / theta_1[x, k]) 
+                coef = (1 - beta * theta_1[x, k]) / (1 - theta_1[x, k])
+                theta_1[x] *= coef
+                theta_1[x, k] /= coef
+                theta_1[x, k] *= beta
+
+        Q1 = Q(theta)
+        Q2 = Q(theta_1)
+        if Q1 > Q2:
+            theta = theta_1
+        else:
+            theta_2 = np.zeros(theta_1.shape)
+            for x in range(DOC_NUM):
+                for y in range(VOCAB_SIZE):
+                    if X[x, y] > 0:
+                        post = np.multiply(theta_1[x, :], phi[:, y])
+                        post /= np.sum(post)
+                        theta_2[x] += post * X[x, y]
+            theta_2 /= np.sum(theta_2, axis=1)[:, np.newaxis]
+            theta_3 = np.copy(theta_1)
+            s = 0
+            while True:
+                theta_3 += gamma(theta_2 - theta_1)                
+                s += gamma
+                if Q(theta_3) > Q(theta) and R(theta_3) > R(theta):
+                    theta = theta_3
+                    break
+                elif s >= 1:
+                    break
+
+    return theta, phi
 
