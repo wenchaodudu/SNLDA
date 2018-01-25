@@ -7,9 +7,9 @@ train_label_matrix = train['Dtrn'].tolist()[0][0][2]
 sample = {}
 subset = []
 label = []
-sample_size1 = 300
-class_num = 3
-q_z = np.load('init.dat.20')
+sample_size1 = 100
+class_num = 20
+q_z = np.load('init.dat.10')
 
 '''
 label2ind = dict()
@@ -19,9 +19,9 @@ for x in range(1, 6):
 label2ind[6] = 3
 '''
 
-for i in [0, 15, 19]:
+#for i in [0, 15, 19]:
 #for i in [1, 9, 12, 17]:
-#for i in range(20):
+for i in range(20):
     sample_i = np.random.choice(np.where(train_label_matrix.todense()[:, i] != 0)[0], sample_size1, replace=False)
     sample[str(i)] = sample_i
     subset = np.hstack((subset, sample_i))
@@ -48,11 +48,11 @@ def random_sample(n, k, m):
 
 
 # labeled data = 5, topic_num = 20
-from snlda import admm
+from snlda import admm, DTM
 from sklearn import svm
-label_num = 100 # labeled data in each category
+label_num = 40 # labeled data in each category
 rho = 10
-iter_num = 6 # maximal iter for admm
+iter_num = 20 # maximal iter for admm
 X = train_select
 label1 = label
 
@@ -60,7 +60,7 @@ Accuracy_l, Accuracy_u = [], []
 for ite in range(5):
     labeled_info = random_sample(sample_size1, class_num, label_num)
     sample = labeled_info[0]  # labeled data index
-    TOPIC_NUM = 20  # need to set it in snlda.py
+    TOPIC_NUM = 10  # need to set it in snlda.py
     # C = np.hstack((np.repeat(0, 10), np.repeat(1, 10)))
     CC = labeled_info[1]
     CCC = dict()
@@ -74,7 +74,8 @@ for ite in range(5):
     # print(C)
     # print(CC)
     #admm_fit = admm(X, CC, TOPIC_NUM, C, rho, iter_num, q_z_select)
-    admm_fit = admm(X, CCC, TOPIC_NUM, C, rho, iter_num, q_z_select)
+    #admm_fit = admm(X, CCC, TOPIC_NUM, C, rho, iter_num, q_z_select)
+    admm_fit = DTM(X, CCC, TOPIC_NUM, iter_num)
     labeled_data = sample
     clf = svm.SVC(kernel='linear')
     clf.fit(admm_fit[labeled_data, :], label1[labeled_data])

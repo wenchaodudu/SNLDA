@@ -53,18 +53,20 @@ def update_variables(X, theta_1, theta_2, q_z, beta, labels, lbda, rho, u, it):
             
     return theta_1, q_z, beta
 
-def dtm_update(X, W, topic_num, theta, phi, it_num):
+def dtm_update(X, W, topic_num, theta, phi, it_num, dic):
     DOC_NUM, VOCAB_SIZE = X.shape
     gamma = 0.1
 
     def Q(theta):
         total = 0
         for x in range(DOC_NUM):
+            '''
             for y in range(VOCAB_SIZE):
-                if X[x, y] > 0:
-                    post = np.multiply(theta[x, :], phi[:, y])
-                    post /= np.sum(post)
-                    total += X[x, y] * np.dot(post, np.log(theta[x, :]) + np.log(phi[:, y]))
+            '''
+            for y in dic[x]:
+                post = np.multiply(theta[x, :], phi[:, y])
+                post /= np.sum(post)
+                total += X[x, y] * np.dot(post, np.log(theta[x, :]) + np.log(phi[:, y]))
         return total
 
     def R(theta):
@@ -74,13 +76,16 @@ def dtm_update(X, W, topic_num, theta, phi, it_num):
         return np.sum(dist) / np.sum(np.multiply(W, dist))
                         
     for _ in range(it_num):
-        new_phi = np.zeros(phi.shape)
+        print _
+        new_phi = np.ones(phi.shape) * .01
         for x in range(DOC_NUM):
+            '''
             for y in range(VOCAB_SIZE):
-                if X[x, y] > 0:
-                    post = np.multiply(theta[x, :], phi[:, y])
-                    post /= np.sum(post)
-                    new_phi[:, y] += post * X[x, y]
+            '''
+            for y in dic[x]:
+                post = np.multiply(theta[x, :], phi[:, y])
+                post /= np.sum(post)
+                new_phi[:, y] += post * X[x, y]
         new_phi /= np.sum(new_phi, axis=1)[:, np.newaxis]
         phi = new_phi
         theta_1 = np.copy(theta)
@@ -92,34 +97,50 @@ def dtm_update(X, W, topic_num, theta, phi, it_num):
         alpha = R(theta)
         for k in range(topic_num):
             for x in range(DOC_NUM):
-                beta = np.min((DOC_NUM * theta_1[x, k] + alpha * np.dot(W[x, :], theta_1[:, k])) / (np.sum(theta_1[:, k]) + alpha * np.sum(W[x, :]) * theta_1[x, k]), 1 / theta_1[x, k]) 
+                beta = (DOC_NUM * theta_1[x, k] + alpha * np.dot(W[x, :], theta_1[:, k])) / (np.sum(theta_1[:, k]) + alpha * np.sum(W[x, :]) * theta_1[x, k])
+                if theta_1[x, k] > 0 and beta > 1 / theta_1[x, k]:
+                    beta = 0.99 / theta_1[x, k]
+                '''
+                if beta * theta_1[x, k] == 1:
+                    theta_1[x] = .01
+                    theta_1[x, k] = 1 - .01 * (topic_num - 1)
+                '''
                 coef = (1 - beta * theta_1[x, k]) / (1 - theta_1[x, k])
                 theta_1[x] *= coef
                 theta_1[x, k] /= coef
                 theta_1[x, k] *= beta
+
+        if np.any(theta_1 <= 0):
+            theta_1 += .01
+            theta_1 /= np.sum(theta_1, axis=1)[:, np.newaxis]
 
         Q1 = Q(theta)
         Q2 = Q(theta_1)
         if Q1 > Q2:
             theta = theta_1
         else:
-            theta_2 = np.zeros(theta_1.shape)
+            print "Q1 not improved"
+            theta_2 = np.ones(theta_1.shape) * .01
             for x in range(DOC_NUM):
-                for y in range(VOCAB_SIZE):
-                    if X[x, y] > 0:
-                        post = np.multiply(theta_1[x, :], phi[:, y])
-                        post /= np.sum(post)
-                        theta_2[x] += post * X[x, y]
+                #for y in range(VOCAB_SIZE):
+                for y in dic[x]:
+                    post = np.multiply(theta_1[x, :], phi[:, y])
+                    post /= np.sum(post)
+                    theta_2[x] += post * X[x, y]
             theta_2 /= np.sum(theta_2, axis=1)[:, np.newaxis]
+            if np.any(theta_2 <= 0):
+                pdb.set_trace()
             theta_3 = np.copy(theta_1)
-            s = 0
+            s = 0.
             while True:
-                theta_3 += gamma(theta_2 - theta_1)                
+                print s
+                theta_3 += gamma * (theta_2 - theta_1)                
                 s += gamma
                 if Q(theta_3) > Q(theta) and R(theta_3) > R(theta):
                     theta = theta_3
                     break
-                elif s >= 1:
+                elif s >= 3 * gamma:
+                    gamma /= 3
                     break
 
     return theta, phi

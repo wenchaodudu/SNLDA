@@ -9,7 +9,7 @@ from sklearn.decomposition import LatentDirichletAllocation as LDA, PCA
 import progressbar
 import pdb
 
-TOPIC_NUM = 0
+TOPIC_NUM = 20
 DOC_NUM = 0
 VOCAB_SIZE = 0
 prior_std = np.sqrt(2) / 2
@@ -73,16 +73,25 @@ def admm(X, W, k, C, rho, iter_num, init=None):
     solution = theta_1 - np.mean(theta_1, axis=1)[:, np.newaxis]
     return theta_1
 
-def DTM(X, W, k, iter_num, init=None):
+def DTM(X, C, k, iter_num, init=None):
     # initialize variables
-    TOPIC_NUM = k
     DOC_NUM, VOCAB_SIZE = X.shape
     theta = np.random.uniform(low=0, high=1, size=(DOC_NUM, TOPIC_NUM))
     theta /= np.sum(theta, axis=1)[:, np.newaxis]
     phi = np.random.uniform(low=0, high=1, size=(TOPIC_NUM, VOCAB_SIZE))
     phi /= np.sum(phi, axis=1)[:, np.newaxis]
-    labeled = C != -1
-    theta, phi = dtm_update(X, W, k, theta, phi)
+    W = np.zeros((DOC_NUM, DOC_NUM))
+    for k in C:
+        for x in C[k]:
+            for y in C[k]:
+                if y != x:
+                    W[x, y] = 1
+                    W[y, x] = 1
+    dic = []
+    bar = progressbar.ProgressBar()
+    for x in bar(range(DOC_NUM)):
+        dic.append(np.nonzero(X[x])[1])
+    theta, phi = dtm_update(X, W, k, theta, phi, iter_num, dic)
     return theta
 
 if __name__ == "__main__":

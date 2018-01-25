@@ -36,7 +36,7 @@ def update_theta(theta0, starting, W, C, lamba, u, rho, it):
     global sigma
     sigma = 1. / theta0.shape[1]
     #sigma = .1
-    iter_num = 20 if it == 0 else 10
+    iter_num = 10 if it == 0 else 10
     for _ in range(iter_num):
         ite = np.where(C!=-1)[0]
         random.shuffle(ite)
@@ -53,11 +53,11 @@ def update_theta(theta0, starting, W, C, lamba, u, rho, it):
         theta += np.divide(grad, adagrad)
         adagrad = np.sqrt(adagrad**2 + grad**2)
         '''
-        obj = objective(theta, theta0, W, C, lamba, u, rho, it)
+        obj, g = objective(theta, theta0, W, C, lamba, u, rho, it)
         if obj > best_obj:
             best_theta = theta
             best_obj = obj
-    return (theta, obj)
+    return (theta, obj, g)
 
 
 def objective(theta, theta0, W, C, lamda, u, rho, it):
@@ -90,9 +90,10 @@ def objective(theta, theta0, W, C, lamda, u, rho, it):
     total *= weight
     total += np.linalg.norm(translation[labeled])**2
     print total
+    g = total
     if it:
         total += rho / 2 * np.linalg.norm(theta0[labeled] - theta[labeled] + u[labeled])**2
-    return total
+    return total, g
 
 def gradient(i, ci, theta, theta0, W, C, lamda, u, rho, it):
     # W: a dict representing the category
