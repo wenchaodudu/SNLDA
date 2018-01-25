@@ -118,6 +118,7 @@ def dtm_update(X, W, topic_num, theta, phi, it_num, dic):
         Q2 = Q(theta_1)
         if Q1 > Q2:
             theta = theta_1
+            print Q1
         else:
             print "Q1 not improved"
             theta_2 = np.ones(theta_1.shape) * .01
@@ -136,8 +137,11 @@ def dtm_update(X, W, topic_num, theta, phi, it_num, dic):
                 print s
                 theta_3 += gamma * (theta_2 - theta_1)                
                 s += gamma
-                if Q(theta_3) > Q(theta) and R(theta_3) > R(theta):
+                Q1 = Q(theta_3)
+                Q2 = Q(theta)
+                if Q1 > Q2 and R(theta_3) > R(theta):
                     theta = theta_3
+                    print Q1
                     break
                 elif s >= 3 * gamma:
                     gamma /= 3
