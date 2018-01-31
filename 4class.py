@@ -77,7 +77,7 @@ label1 = label
 
 Accuracy_l, Accuracy_u = [], []
 for ite in range(1):
-    labeled_info = random_sample(sample_size1, class_num, label_num)
+    labeled_info = random_sample(class_num, label_num)
     sample, CC = labeled_info  # labeled data index
     TOPIC_NUM = 10  # need to set it in snlda.py
     # C = np.hstack((np.repeat(0, 10), np.repeat(1, 10)))
