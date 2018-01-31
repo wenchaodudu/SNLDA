@@ -9,8 +9,8 @@ test_data = test['Dtst'].tolist()[0][0][1]
 train_label_matrix = train['Dtrn'].tolist()[0][0][2]
 test_label_matrix = test['Dtst'].tolist()[0][0][2]
 
-train_data = scipy.sparse.vstack([train_data, test_data])
-train_label_matrix = scipy.sparse.vstack([train_label_matrix, test_label_matrix])
+train_data = scipy.sparse.vstack([train_data, test_data], format='csr')
+train_label_matrix = scipy.sparse.vstack([train_label_matrix, test_label_matrix], format='csr')
 
 sample = {}
 subset = []
