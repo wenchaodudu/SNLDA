@@ -141,10 +141,11 @@ def dtm_update(X, W, topic_num, theta, phi, it_num, dic):
                 Q2 = Q(theta)
                 if Q1 > Q2 and R(theta_3) > R(theta):
                     theta = theta_3
+                    gamma = .1
                     print Q1
                     break
-                elif s >= 3 * gamma:
-                    gamma /= 3
+                elif s >= 9 * gamma:
+                    gamma /= 4
                     break
 
     return theta, phi
