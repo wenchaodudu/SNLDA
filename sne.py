@@ -36,7 +36,7 @@ def update_theta(theta0, starting, W, C, lamba, u, rho, it):
     global sigma
     sigma = 1. / theta0.shape[1]
     #sigma = .1
-    iter_num = 10 if it == 0 else 10
+    iter_num = 10 if it == 0 else 5
     for _ in range(iter_num):
         ite = np.where(C!=-1)[0]
         random.shuffle(ite)

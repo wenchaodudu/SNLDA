@@ -49,6 +49,10 @@ def admm(X, W, k, C, rho, iter_num, init=None):
         conv = np.linalg.norm(theta_1[labeled] - theta_2[labeled])
         convergence.append(conv)
         print conv
+        np.save('theta1', theta_1)
+        np.save('theta2', theta_2)
+        np.save('q_z', q_z)
+        
 
         '''
         if it % 5 == 4:

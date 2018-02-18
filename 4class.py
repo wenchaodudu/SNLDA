@@ -9,6 +9,8 @@ test_data = test['Dtst'].tolist()[0][0][1]
 train_label_matrix = train['Dtrn'].tolist()[0][0][2]
 test_label_matrix = test['Dtst'].tolist()[0][0][2]
 
+np.random.seed(309)
+
 train_data = scipy.sparse.vstack([train_data, test_data], format='csr')
 train_label_matrix = scipy.sparse.vstack([train_label_matrix, test_label_matrix], format='csr')
 
@@ -69,9 +71,9 @@ def random_sample(class_num, label_num):
 # labeled data = 5, topic_num = 20
 from snlda import admm, DTM
 from sklearn import svm
-label_num = 0.1 # labeled data in each category
+label_num = 0.2 # labeled data in each category
 rho = 10
-iter_num = 20 # maximal iter for admm
+iter_num = 10 # maximal iter for admm
 X = train_select
 label1 = label
 
@@ -79,33 +81,29 @@ Accuracy_l, Accuracy_u = [], []
 for ite in range(1):
     labeled_info = random_sample(class_num, label_num)
     sample, CC = labeled_info  # labeled data index
-    TOPIC_NUM = 10  # need to set it in snlda.py
+    TOPIC_NUM = 20  # need to set it in snlda.py
     # C = np.hstack((np.repeat(0, 10), np.repeat(1, 10)))
-    C = np.repeat(-1, len(train_data))
-    '''
+    C = np.repeat(-1, train_data.shape[0])
     CCC = dict()
-    C = np.repeat(-1, class_num * sample_size1)
     clf_train_data = []
     for i in CC.keys():
         ll = len(CC[i])
         C[CC[i][:ll/2]] = i
         CCC[i] = CC[i][:ll/2]
         clf_train_data += CC[i][ll/2:].tolist()
-    '''
     # print(C)
     # print(CC)
-    pdb.set_trace()
-    admm_fit = admm(X, CC, TOPIC_NUM, C, rho, iter_num, q_z_select)
-    #admm_fit = admm(X, CCC, TOPIC_NUM, C, rho, iter_num, q_z_select)
+    #admm_fit = admm(X, CC, TOPIC_NUM, C, rho, iter_num, q_z_select)
+    admm_fit = admm(X, CCC, TOPIC_NUM, C, rho, iter_num, q_z_select)
     #admm_fit = DTM(X, CCC, TOPIC_NUM, iter_num)
     labeled_data = sample
     clf = svm.SVC(kernel='linear')
     clf.fit(admm_fit[labeled_data, :], label1[labeled_data])
     #clf.fit(admm_fit[clf_train_data, :], label1[clf_train_data])
     predict = clf.predict(admm_fit)
-    accuracy = sum(predict == label1) / float(class_num * sample_size1)
-    accuracy_labeled = sum(predict[labeled_data] == label1[labeled_data]) / float(class_num * label_num)
-    accuracy_unlabeled = sum(predict[-labeled_data] == label1[-labeled_data]) / float(class_num * (sample_size1-label_num))
+    accuracy = sum(predict == label1) / float(X.shape[0])
+    accuracy_labeled = sum(predict[labeled_data] == label1[labeled_data]) / float(X.shape[0] * label_num)
+    accuracy_unlabeled = sum(predict[-labeled_data] == label1[-labeled_data]) / float(X.shape[0] * (1-label_num))
     print 'Prediction accuracy on labeled part for iteration', ite, ': ', round(accuracy_labeled * 100, 2)
     print 'Prediction accuracy on unlabeled part for iteration', ite, ': ', round(accuracy_unlabeled * 100, 2)
     Accuracy_l.append(accuracy_labeled)
