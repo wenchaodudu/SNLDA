@@ -4,7 +4,11 @@ import pdb
 import progressbar
 
 train = scipy.io.loadmat('./20 news/ng2011293x8165itrn.mat')
+test = scipy.io.loadmat('./20 news/ng207528x8165itst.mat')
 train_data = train['Dtrn'].tolist()[0][0][1]
+test_data = test['Dtst'].tolist()[0][0][1]
+train_data = scipy.sparse.vstack([train_data, test_data], format='csr')
+
 DOC_NUM = train_data.shape[0]
 VOCAB_SIZE = train_data.shape[1]
 TOPIC_NUM = 20

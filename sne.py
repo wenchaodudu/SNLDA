@@ -2,6 +2,7 @@ import numpy as np
 # from snlda import DOC_NUM, TOPIC_NUM
 import random
 import pdb
+import logging
 
 np.seterr(invalid='raise', divide='raise')
 
@@ -89,7 +90,7 @@ def objective(theta, theta0, W, C, lamda, u, rho, it):
             total += np.log(denom[x]) * (len(cat_list) - 1)
     total *= weight
     total += np.linalg.norm(translation[labeled])**2
-    print total
+    logging.info(total)
     g = total
     if it:
         total += rho / 2 * np.linalg.norm(theta0[labeled] - theta[labeled] + u[labeled])**2

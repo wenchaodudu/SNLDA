@@ -1,6 +1,7 @@
 import numpy as np
 import pdb
 from scipy.special import digamma
+import logging
 
 iter_num = 5
 
@@ -16,7 +17,7 @@ def update_variables(X, theta_1, theta_2, q_z, beta, labels, lbda, rho, u, it):
     unlabeled = [x for x in range(DOC_NUM) if labels[x] == -1]
     total = 0
     for itt in range(iter_num):
-        print "Updating topics; iter:", itt
+        logging.info("Updating topics; iter: %d" % itt)
         new_beta = np.ones(beta.shape)
         for x in labeled + unlabeled:
             weight = 1 if labels[x] != -1 else 1
@@ -48,7 +49,7 @@ def update_variables(X, theta_1, theta_2, q_z, beta, labels, lbda, rho, u, it):
 
         # update beta
         new_beta /= np.sum(new_beta, axis=1)[:, np.newaxis]
-        print np.linalg.norm(new_beta - beta)
+        logging.inf(np.linalg.norm(new_beta - beta))
         beta = new_beta
             
     return theta_1, q_z, beta

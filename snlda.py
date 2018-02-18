@@ -8,6 +8,7 @@ from sklearn.manifold import TSNE, MDS
 from sklearn.decomposition import LatentDirichletAllocation as LDA, PCA
 import progressbar
 import pdb
+import logging
 
 TOPIC_NUM = 20
 DOC_NUM = 0
@@ -30,7 +31,7 @@ def admm(X, W, k, C, rho, iter_num, init=None):
     u = np.zeros((DOC_NUM, TOPIC_NUM))
     bar = progressbar.ProgressBar()
     if init is None:
-        print "Initializing."
+        logging.info("Initializing.")
         for y in bar(range(VOCAB_SIZE)):
             for x in range(DOC_NUM):
                 if X[x, y] > 0:
@@ -48,7 +49,7 @@ def admm(X, W, k, C, rho, iter_num, init=None):
         u[labeled] += (theta_1[labeled] - theta_2[labeled])
         conv = np.linalg.norm(theta_1[labeled] - theta_2[labeled])
         convergence.append(conv)
-        print conv
+        logging.info(conv)
         np.save('theta1', theta_1)
         np.save('theta2', theta_2)
         np.save('q_z', q_z)
