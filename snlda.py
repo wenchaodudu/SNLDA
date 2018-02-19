@@ -42,6 +42,7 @@ def admm(X, W, k, C, rho, iter_num, init=None):
     labeled = C != -1
     convergence = []
     for it in range(iter_num):
+        print it
         theta_2, obj, g = update_theta(theta_1, theta_2, W, C, 1 / (2 * prior_std**2), u, rho, it)
         theta_2 -= np.mean(theta_2, axis=1)[:, np.newaxis]
         theta_1, q_z, beta = update_variables(X, theta_1, theta_2, q_z, beta, C, prior_std**2, rho, u, it)

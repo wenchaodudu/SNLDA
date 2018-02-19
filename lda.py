@@ -49,7 +49,7 @@ def update_variables(X, theta_1, theta_2, q_z, beta, labels, lbda, rho, u, it):
 
         # update beta
         new_beta /= np.sum(new_beta, axis=1)[:, np.newaxis]
-        logging.inf(np.linalg.norm(new_beta - beta))
+        logging.info(np.linalg.norm(new_beta - beta))
         beta = new_beta
             
     return theta_1, q_z, beta
