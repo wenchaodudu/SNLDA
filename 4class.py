@@ -9,7 +9,7 @@ test_data = test['Dtst'].tolist()[0][0][1]
 train_label_matrix = train['Dtrn'].tolist()[0][0][2]
 test_label_matrix = test['Dtst'].tolist()[0][0][2]
 
-np.random.seed(309)
+np.random.seed(308)
 
 train_data = scipy.sparse.vstack([train_data, test_data], format='csr')
 train_label_matrix = scipy.sparse.vstack([train_label_matrix, test_label_matrix], format='csr')
@@ -17,7 +17,7 @@ train_label_matrix = scipy.sparse.vstack([train_label_matrix, test_label_matrix]
 sample = {}
 subset = []
 label = []
-#sample_size1 = 100
+sample_size1 = 100
 class_num = 20
 q_z = np.load('init.dat.20')
 
@@ -32,12 +32,12 @@ label2ind[6] = 3
 #for i in [0, 15, 19]:
 #for i in [1, 9, 12, 17]:
 for i in range(20):
-    #sample_i = np.random.choice(np.where(train_label_matrix.todense()[:, i] != 0)[0], sample_size1, replace=False)
-    sample_i = np.where(train_label_matrix.todense()[:, i] != 0)[0]
+    sample_i = np.random.choice(np.where(train_label_matrix.todense()[:, i] != 0)[0], sample_size1, replace=False)
+    #sample_i = np.where(train_label_matrix.todense()[:, i] != 0)[0]
     sample[str(i)] = sample_i
     subset = np.hstack((subset, sample_i))
-    #label = np.hstack((label, np.repeat(i, sample_size1)))
-    label = np.hstack((label, np.repeat(i, len(sample_i))))
+    label = np.hstack((label, np.repeat(i, sample_size1)))
+    #label = np.hstack((label, np.repeat(i, len(sample_i))))
 subset = subset.astype(np.int32)
 train_select = train_data[subset, ]
 q_z_select = q_z[subset, ]
@@ -50,11 +50,10 @@ for x in range(class_num):
 
 # random sample SVM. Data matrix: X, n * p, n = 2000, 100 sample in each catogory
 # n: sample size in each category; k: number of class
-def random_sample(class_num, label_num):
+def random_sample(class_num, n, m):
     sample = []
     CC = {}
-    '''
-    for i in range(k):
+    for i in range(class_num):
         sample_i = np.random.choice(range(i * n, (i + 1) * n), size=m, replace=False)
         CC[i] = sample_i
         sample = np.hstack((sample, sample_i))
@@ -65,13 +64,14 @@ def random_sample(class_num, label_num):
         CC[i] = sample_i
         sample = np.hstack((sample, sample_i))
     sample = np.array(sample, dtype=int)
+    '''
     return sample, CC
 
 
 # labeled data = 5, topic_num = 20
 from snlda import admm, DTM
 from sklearn import svm
-label_num = 0.2 # labeled data in each category
+label_num = 20 # labeled data in each category
 rho = 10
 iter_num = 10 # maximal iter for admm
 X = train_select
@@ -79,11 +79,11 @@ label1 = label
 
 Accuracy_l, Accuracy_u = [], []
 for ite in range(1):
-    labeled_info = random_sample(class_num, label_num)
+    labeled_info = random_sample(class_num, sample_size1, label_num)
     sample, CC = labeled_info  # labeled data index
     TOPIC_NUM = 20  # need to set it in snlda.py
     # C = np.hstack((np.repeat(0, 10), np.repeat(1, 10)))
-    C = np.repeat(-1, train_data.shape[0])
+    C = np.repeat(-1, train_select.shape[0])
     CCC = dict()
     clf_train_data = []
     for i in CC.keys():
